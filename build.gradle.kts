@@ -83,7 +83,7 @@ val licenseFormatJvmMain by creating(com.hierynomus.gradle.license.tasks.License
         group = "license"
     }
     licenseFormat {
-        finalizedBy(licenseFormatJsMain, licenseFormatCommonMain, licenseFormatJvm)
+        finalizedBy(licenseFormatJsMain, licenseFormatCommonMain, licenseFormatJvmMain)
     }
 }
 

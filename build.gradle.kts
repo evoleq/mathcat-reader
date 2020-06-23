@@ -55,6 +55,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.3.5")
                 implementation(project(":mathcat-core"))
                 implementation(project(":mathcat-morphism"))
+                implementation(project(":mathcat-structure"))
             }
         }
         val commonTest by getting {

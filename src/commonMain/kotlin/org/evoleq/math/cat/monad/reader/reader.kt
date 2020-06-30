@@ -15,13 +15,10 @@
  */
 package org.evoleq.math.cat.monad.reader
 
-import org.evoleq.math.cat.functor.Diagonal
 import org.evoleq.math.cat.marker.MathCatDsl
 import org.evoleq.math.cat.morphism.Morphism
 import org.evoleq.math.cat.morphism.by
-import org.evoleq.math.cat.morphism.evaluate
 import org.evoleq.math.cat.morphism.o
-import org.evoleq.math.cat.structure.x
 
 interface Reader<E, T> : Morphism<E, T> {
     @MathCatDsl
@@ -45,6 +42,7 @@ fun <E, T> Reader(arrow: (E)->T): Reader<E, T> = object : Reader<E, T> {
 /**
  * Map [Reader]
  */
+@MathCatDsl
 infix  fun <E, S, T>  Reader<E, S>.map(f: (S)->T): Reader<E, T> = Reader { e ->
     (f o by(this@map)) (e)
 }
@@ -56,12 +54,14 @@ infix  fun <E, S, T>  Reader<E, S>.map(f: (S)->T): Reader<E, T> = Reader { e ->
 /**
  * Apply function of the Applicative [Reader]
  */
-fun <E, S, T> Reader<E, (S)->T>.apply(): (Reader<E, S>)->Reader<E, T> = {rS -> Reader{e ->
-    ((by(this@apply) x by(rS)) (Diagonal(e))).evaluate()
-} }
+@MathCatDsl
+fun <E, S, T> Reader<E, (S)->T>.apply(): (Reader<E, S>)->Reader<E, T> = {
+    rS -> this@apply bind {f -> rS map f}
+}
 /**
  * Apply function of the Applicative [Reader]
  */
+@MathCatDsl
 infix fun <E, S, T> Reader<E, (S)->T>.apply(reader: Reader<E, S>): Reader<E, T> = apply()(reader)
 
 /**********************************************************************************************************************

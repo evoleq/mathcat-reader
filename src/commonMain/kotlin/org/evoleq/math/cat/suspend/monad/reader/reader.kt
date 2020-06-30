@@ -17,12 +17,9 @@ package org.evoleq.math.cat.suspend.monad.reader
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
-import org.evoleq.math.cat.functor.Diagonal
 import org.evoleq.math.cat.marker.MathCatDsl
-import org.evoleq.math.cat.structure.x
 import org.evoleq.math.cat.suspend.morphism.ScopedSuspended
 import org.evoleq.math.cat.suspend.morphism.by
-import org.evoleq.math.cat.suspend.morphism.evaluate
 
 interface Reader<E, T> : ScopedSuspended<E, T> {
     @MathCatDsl
@@ -42,6 +39,7 @@ fun <E, T> Reader(arrow: suspend CoroutineScope.(E)->T): Reader<E, T> = object :
 /**
  * Map [Reader]
  */
+@MathCatDsl
 suspend infix fun <E, S, T>  Reader<E, S>.map(f: suspend CoroutineScope.(S)->T): Reader<E, T> = Reader { e ->
     f(by(this@map)(e))
 }
@@ -57,9 +55,7 @@ suspend infix fun <E, S, T>  Reader<E, S>.map(f: suspend CoroutineScope.(S)->T):
  */
 @MathCatDsl
 suspend fun <E, S, T> Reader<E, suspend CoroutineScope.(S)->T>.apply(): suspend CoroutineScope.(Reader<E, S>)->Reader<E, T> = {
-    reader: Reader<E, S> -> Reader{
-        e -> (by(this@apply) x by(reader)) (Diagonal(e)).evaluate()
-    }
+    reader -> this@apply bind {f -> reader map f}
 }
 
 /**

@@ -1,14 +1,11 @@
-//group = "org.evoleq"
-//version = "1.0.0"
-
+import org.evoleq.publish.mppPublications
 
 plugins {
-    //java
     kotlin("multiplatform") version Config.Versions.kotlin
     id ("com.github.hierynomus.license") version "0.15.0"
     `maven-publish`
-    maven
-    id ("com.jfrog.bintray") version "1.8.0"
+    id ("com.jfrog.artifactory") version "4.28.3"
+    id("org.evoleq.publish") version "0.0.0"
     id("org.jetbrains.dokka") version "0.9.17"
 }
 
@@ -88,4 +85,33 @@ tasks{
     }
 }
 
-apply(from = "../publish.gradle.kts")
+
+val jfrogUser: String by project
+val jfrogMathcatPw: String by project
+
+val jfrogEvoleqContextUrl: String by project
+val jfrogReleaseLibs: String by project
+
+artifactory{
+    setContextUrl (jfrogEvoleqContextUrl)
+    publish {
+        repository {
+            setRepoKey ( jfrogReleaseLibs ) // The Artifactory repository key to publish to
+            setUsername ( jfrogUser ) // The publisher user name
+            setPassword ( jfrogMathcatPw ) // The publisher password
+        }
+        defaults {
+            // Reference to Gradle publications defined in the build script.
+            // This is how we tell the Artifactory Plugin which artifacts should be
+            // published to Artifactory.
+            publications(
+                *mppPublications()
+            )
+            setPublishArtifacts ( true )
+            // Properties to be attached to the published artifacts.
+            // setProperties (mapOf("qa.level" to "basic", "dev.team" to "core"))
+            // Publish generated POM files to Artifactory (true by default)
+            setPublishPom (true)
+        }
+    }
+}
